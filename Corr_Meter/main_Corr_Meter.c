@@ -458,19 +458,6 @@ void main(void)
                         work_time = HiLimitMSB;
                         work_time = work_time << 8;
                         work_time = work_time + HiLimitLSB;
-                        /*hexdec_long((uint32_t)work_time);           // Conver PulseCount to a string
-
-    str[2]  = Rx_buf[0];
-    str[3]  = Rx_buf[1];
-    str[4]  = Rx_buf[2];
-    str[5]  = Rx_buf[3];
-    str[6]  = Rx_buf[4];
-    str[7]  = Rx_buf[5];
-    str[8]  = Rx_buf[6];
-    str[9]  = Rx_buf[7];
-    str[10] = Rx_buf[8];
-    str[11] = Rx_buf[9];
-                         */
                         
                         //Used for calibration HV VSET
                         LoLimitMSB  = dataBuffer[16] - 48;//Use as shift
