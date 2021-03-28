@@ -111,7 +111,7 @@ char dataBuffer[BUFFER_SIZE] = "";
 uint8_t message[] = "\nAlarm\n";
 uint8_t message1[] = "\nRTC Interrupts are enabled\n";
 uint8_t messageSPI[] = "\nSPI Interrupt \n";
-uint8_t ver[] = "\nBallast UVC v00\n";
+uint8_t ver[] = "\nCorr Meter v00\n";
 uint8_t adc_message[] = "\nNo ADC sample...\n";
 uint8_t P30[] = "\nP3.0 not Active\n";
 uint8_t uart0_buf[4];
@@ -212,7 +212,7 @@ void main(void)
 
     pin_mux();                                              //P1 interrupt is enabled here
     //adc_int_Vref_3_3();                                     //ADC init
-    adc_int_3_3V_4ch();
+    adc_int_3_3V_4ch();                                     // Initialize ADC
 
     count = 0;                                              //Reset count, used in USB received buffer
     SecCount = 0;                                           //Initialize seconds counter
@@ -356,7 +356,6 @@ void main(void)
     {
 
         WDTCTL = WatchDog;
-
         ADC12CTL0 |= ADC12SC;                       // Start sampling/conversion
         __no_operation();                           // For debugger
 
@@ -374,9 +373,7 @@ void main(void)
         {//The USB module is powered from PC USB
 
             case ST_ENUM_ACTIVE:                    // Enumeration is done USB is active
-
                 USB_present = TRUE;
-
                 if (!USBCDC_getBytesInUSBBuffer(CDC0_INTFNUM)) {    // Returns how many bytes are in the buffer are received and ready to be read.
                     __bis_SR_register(LPM0_bits + GIE);             // Enter LPM0 sleep mode with global interrupt enabled. If no serial data is received fall asleep and wait for data. Any interrupt will wake up the system.
 
@@ -384,7 +381,6 @@ void main(void)
                 __enable_interrupt();                               // Enable global interrupt. That is why Minute interrupt does not enable GIE.
                 ADC12CTL0 |= ADC12SC;
                 __no_operation();                                   // For debugger
-
 /*
                 if (flag == 0){                                                                         //LCD print only once
                     if (!rus){
@@ -398,7 +394,6 @@ void main(void)
                     DelayMs1(3000);
                 }//above is printed only once
 */
-
                 if (!USBCDC_handleReceiveCompleted(CDC0_INTFNUM)){ // This event indicates that a receive operation on interface intfNum has just been completed. Returns False
 
                     /*
@@ -408,7 +403,7 @@ void main(void)
                     count = USBCDC_receiveDataInBuffer((uint8_t*)dataBuffer, BUFFER_SIZE, CDC0_INTFNUM);// Get data from USB buffer
 
                     if (count != 0){
-                        // Initialize date
+                        // Initialize date and time
 #ifndef debug
                         dateStr[0]  = '\n'; dateStr[1] = dataBuffer[0]; dateStr[2] = dataBuffer[1]; //month string
                         dateStr[3]  = ':';  dateStr[4] = dataBuffer[2]; dateStr[5] = dataBuffer[3]; //day string
@@ -499,7 +494,6 @@ void main(void)
 
                          //MinAlarmSet = dataBuffer[14]- 48;  //Set minute alarm text print time interval
 #endif
-
                         count = 0; //Reset number of bytes received from the USB
                         //bCDCDataReceived_event = TRUE;
                     }
@@ -520,7 +514,6 @@ void main(void)
                     }
                    convertTimeBinToASCII(timeStr);          //uint8_t timeStr[10]; timeStr gets filled up in convertTimeBinToASCII
                    convertDateBinToASCII(dateStr);          // Fills up dateStr in convertDateBinToASCII function
-
                    usbstr [42] = ' ';
                    if (!GPIO_getInputPinValue(GPIO_PORT_P2, GPIO_PIN0)){ //Sensor1
                        usbstr [43] = '1';
@@ -555,9 +548,7 @@ void main(void)
                    hexdec_to_str((uint32_t) t_lapse_hour, hour_run);
                    usbstr [53] = hour_run[8];//Hour singles
                    usbstr [54] = hour_run[9];//Hour decimal
-
                    usbstr [55] = ' ';
-
                    if (batch == 0){
                        usbstr [56] = 'B';
                        usbstr [57] = '0';
@@ -565,14 +556,11 @@ void main(void)
                        usbstr [56] = 'B';
                        usbstr [57] = '1';
                    }
-
                    if (ADCflag == 1){// Set the flag when sample is ready
                         //VoltageBinToASCII(VCH1, BatStat);
                         VoltageBinToASCII(VCH2, VSET);
                         temperature(VCH1);        //Compute temperature and
                         DelayMs1(1);
-                        //CycleCount = t_lapse_min / 10;
-
 #ifdef Nitche_UVDI360
                         if (GPIO_getInputPinValue(GPIO_PORT_P2, GPIO_PIN3) && (state_snsr1 == 0))
                             CycleCount ++;
@@ -586,75 +574,28 @@ void main(void)
                             ADC12IE = ADC12IE2;     // Set bit3 in ADC12IE
                         if ((SecCount % 10) == 0){
                             //strcpy((char *) usbstr, (const char *)VCH1);                  // Print temperature
-                            // Print temperature
-                            usbstr[0] = VCH1[0];                                            //The new line
-                            usbstr[1] = VCH1[3];//VCH1[5]
-                            usbstr[2] = VCH1[4];//VCH1[6]
-                            usbstr[3] = VCH1[5];//VCH1[7]
-                            usbstr[4] = VCH1[6];//VCH1[8]
-                            usbstr[5] = VCH1[7];//VCH1[9]
-                            //usbstr[6] = VCH1[8];
-                            //usbstr[7] = VCH1[9];
-                            //usbstr[8] = VCH1[12];
-                            //usbstr[9] = VCH1[13];
-
+                            // Print temperature (voltage channel 1)
+                            usbstr[0] = VCH1[0];                                            //The new line character
+                            usbstr[1] = VCH1[3]; usbstr[2] = VCH1[4]; usbstr[3] = VCH1[5]; usbstr[4] = VCH1[6]; usbstr[5] = VCH1[7];
                             usbstr [6] = ' ';
                             //Print voltage from CH2
-                            usbstr [7] = VCH2[5];
-                            usbstr [8] = VCH2[6];
-                            usbstr [9] = VCH2[7];
-                            usbstr [10] = VCH2[8];
-                            usbstr [11] = VCH2[9];
-                            //usbstr [15] = VCH2[10];
-                            //usbstr [16] = VCH2[11];
-                            //usbstr [17] = VCH2[12];
-                            //usbstr [19] = VCH2[13];
-
+                            usbstr [7] = VCH2[5]; usbstr [8] = VCH2[6]; usbstr [9] = VCH2[7]; usbstr [10] = VCH2[8]; usbstr [11] = VCH2[9];
                             usbstr [12] = ' ';
-
                             //usbstr [27] = timeStr[0];
-                            usbstr [13] = timeStr[1];
-                            usbstr [14] = timeStr[2];
-                            usbstr [15] = timeStr[3];
-                            usbstr [16] = timeStr[4];
-                            usbstr [17] = timeStr[5];
-                            usbstr [18] = timeStr[6];
-                            usbstr [19] = timeStr[7];
-                            usbstr [20] = timeStr[8];
-
+  usbstr [13] = timeStr[1]; usbstr [14] = timeStr[2]; usbstr [15] = timeStr[3]; usbstr [16] = timeStr[4]; usbstr [17] = timeStr[5]; usbstr [18] = timeStr[6]; usbstr [19] = timeStr[7]; usbstr [20] = timeStr[8];
                             usbstr [21] = ' ';
-
-                            usbstr [22] = dateStr[1];
-                            usbstr [23] = dateStr[2];
-                            usbstr [24] = dateStr[3];
-                            usbstr [25] = dateStr[4];
-                            usbstr [26] = dateStr[5];
-                            usbstr [27] = dateStr[6];
-                            usbstr [28] = dateStr[7];
-                            usbstr [29] = dateStr[8];
+  usbstr [22] = dateStr[1]; usbstr [23] = dateStr[2]; usbstr [24] = dateStr[3]; usbstr [25] = dateStr[4]; usbstr [26] = dateStr[5]; usbstr [27] = dateStr[6]; usbstr [28] = dateStr[7]; usbstr [29] = dateStr[8];
                             usbstr [30] = dateStr[9];
                             usbstr [31] = dateStr[10];
-
                             usbstr [32] = ' ';
-
                             if (GPIO_getInputPinValue(GPIO_PORT_P1, GPIO_PIN5)){//This pin will be set low after 10 hours of operation in RTC routine
                                 usbstr [33] = 'E';
                             }else{
                                 usbstr [33] = 'D';
                             }
-
                             usbstr [34] = ' ';
-
-                            //usbstr [30] = Cycles[0];
-                            //usbstr [31] = Cycles[1];
-                            usbstr [35] = Cycles[2];
-                            usbstr [36] = Cycles[3];
-                            usbstr [37] = Cycles[4];
-                            usbstr [38] = Cycles[6];
-                            usbstr [39] = Cycles[7];
-                            usbstr [40] = Cycles[8];
-                            usbstr [41] = Cycles[9];
-                            USBCDC_sendDataInBackground(usbstr, 58, CDC0_INTFNUM, 1000);    // Send Temperature
+  usbstr [35] = Cycles[2]; usbstr [36] = Cycles[3]; usbstr [37] = Cycles[4]; usbstr [38] = Cycles[6]; usbstr [39] = Cycles[7]; usbstr [40] = Cycles[8]; usbstr [41] = Cycles[9];
+                            USBCDC_sendDataInBackground(usbstr, 58, CDC0_INTFNUM, 1000);    // Send the above string
                             {
                                 _NOP();     // If it fails, it'll end up here.  Could happen if
                                         // the cable was detached after the connectionState()
