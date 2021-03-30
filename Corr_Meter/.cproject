@@ -97,7 +97,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="ads131a04.c|ads_hal.c|spi_MSP430F5529.c|usci_a_spi_ex1_master.c|pin_mux_ballast_Rev02.c|main_Ballast_Rev18_WDT.c|main_Ballast_Rev17_WDT.c|main_Ballast_Rev16_WDT.c|main_Ballast_Rev15.c|main_Ballast_Rev14.c|main_Ballast_Rev13.c|main_Ballast_Rev12.c|pin_mux_ballast_Rev01.c|main_Ballast_Rev11.c|pin_mux_Rev01.c|adc.c|main_Rev11.c|main_Rev10.c|main_Rev09.c|spi.c|interrpt_GPIO.c|RTC_isr.c|pin_mux.c|main_Rev08.c|main_Rev07.c|main_Rev06.c|main_Rev05.c|LCD.c|main_Rev01.c|main_Rev02.c|main_Rev03.c|main_Rev04.c|WEH001602_6800.c|WEH001602_4bit_6800.c|main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ad7606.c|ads131a04.c|ads_hal.c|spi_MSP430F5529.c|usci_a_spi_ex1_master.c|pin_mux_ballast_Rev02.c|main_Ballast_Rev18_WDT.c|main_Ballast_Rev17_WDT.c|main_Ballast_Rev16_WDT.c|main_Ballast_Rev15.c|main_Ballast_Rev14.c|main_Ballast_Rev13.c|main_Ballast_Rev12.c|pin_mux_ballast_Rev01.c|main_Ballast_Rev11.c|pin_mux_Rev01.c|adc.c|main_Rev11.c|main_Rev10.c|main_Rev09.c|spi.c|interrpt_GPIO.c|RTC_isr.c|pin_mux.c|main_Rev08.c|main_Rev07.c|main_Rev06.c|main_Rev05.c|LCD.c|main_Rev01.c|main_Rev02.c|main_Rev03.c|main_Rev04.c|WEH001602_6800.c|WEH001602_4bit_6800.c|main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

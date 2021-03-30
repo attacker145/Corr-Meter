@@ -96,7 +96,7 @@ extern volatile uint8_t Rx_buf[10];
 //****************************************************************************
 
 // Determine number of bytes per command based on WORD_LENGTH
-#define WORD_LENGTH             (WORD_LENGTH_BITS >> 3)
+#define WORD_LENGTH             (WORD_LENGTH_BITS >> 3) //24 - 00011000 >> 3 - 0011 - WORD_LENGTH is 3 byte
 
 // Fetch the upper byte of a 16-bit word and return it as an 8-bit value
 #define UPPER_BYTE(x)           ((uint8_t) ((0xFF00 & x) >> 8))
@@ -181,15 +181,15 @@ void restoreRegisterDefaults(void)
 
 void spi_init (void){
 
-    GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN5);//Set P1.5 for slave reset
+    GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN5);               //Set P1.5 for slave reset
 
     //P3.5,4,0 option select
     GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3, GPIO_PIN2 + GPIO_PIN1 + GPIO_PIN0);
     //Initialize Master
     USCI_B_SPI_initMasterParam param = {0};
-    param.selectClockSource = USCI_B_SPI_CLOCKSOURCE_SMCLK;
+    param.selectClockSource = USCI_B_SPI_CLOCKSOURCE_SMCLK;         //SMCLK = 1.0 MHz
     param.clockSourceFrequency = UCS_getSMCLK();
-    param.desiredSpiClock = SPICLK;
+    param.desiredSpiClock = SPICLK;                                 //500000 Hz
     param.msbFirst = USCI_B_SPI_MSB_FIRST;
     param.clockPhase = USCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
     param.clockPolarity = USCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
